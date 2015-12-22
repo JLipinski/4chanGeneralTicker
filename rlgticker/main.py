@@ -5,6 +5,7 @@ import win32service
 import win32event
 import servicemanager
 import socket
+import textwrap
 
 
 class AppServerSvc (win32serviceutil.ServiceFramework):
@@ -33,17 +34,13 @@ class AppServerSvc (win32serviceutil.ServiceFramework):
         while True:
             post = self.rlg_thread.get_next_reply()
             rc = win32event.WaitForSingleObject(self.hWaitStop, self.timeout)
-            while len(post) > 500:
-                if len(post) > 500:
-                    self.display.add_meme(post[:500])
-                    self.display.wait()
-                    self.display.print_meme()
-                    print(post[:500])
-                    post = post[500:]
-            self.display.add_meme(post)
-            self.display.wait()
-            self.display.print_meme()
-            print(post)
+            splits = textwrap.wrap(post, 500)
+            for i in range(len(splits)):
+                self.display.add_meme(splits[i])
+                while self.display.wait():
+                    pass
+                self.display.print_meme()
+
 
 if __name__ == '__main__':
     win32serviceutil.HandleCommandLine(AppServerSvc)

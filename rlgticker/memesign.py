@@ -76,7 +76,7 @@ class MemeSign:
         A blocking call until a response is received from the arduino.
         :return:
         """
-        while not self.ser.inWaiting() > 0:
+        if not self.ser.inWaiting() > 0:
             return True
         else:
             self.ser.flushInput()
