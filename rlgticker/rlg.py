@@ -33,13 +33,9 @@ class RogueLikeGeneral:
             for post in self.thrd.all_posts:
                 if post.post_id > self.last_post:
                     self.last_post = post.post_id
-<<<<<<< HEAD
-                    return post.text_comment.replace('\n', ' ').replace('\r', '')
-=======
                     if self.last_post > self.last_post_saved + 1000:
                         f = open('E:\RLGTicker\lastpost.txt', 'w')
                         f.write(str(self.last_post))
                         self.last_post_saved = self.last_post
                     return post.text_comment.replace('\n', ' ')
->>>>>>> rework
             return ""
