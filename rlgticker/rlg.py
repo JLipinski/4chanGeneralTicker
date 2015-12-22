@@ -2,7 +2,15 @@ import basc_py4chan
 
 
 class RogueLikeGeneral:
+    # TODO: Abstract this thread to any general
     def __init__(self):
+        """
+        RogueLikeGeneral
+        self.vg: 4chan board /vg/
+        self.thrd: /rlg/ thread
+        self.last_post: post id for the last post printed to the display
+        self.last_post_saved: post id saved to a text file to allow uninterrupted shutdown and startup
+        """
         self.vg = basc_py4chan.Board('vg')
         self.thrd = None
         with open('E:\RLGTicker\lastpost.txt', 'r') as f:
@@ -13,8 +21,8 @@ class RogueLikeGeneral:
 
     def rlg_finder(self):
         """
-        Updates the attribute to reflect the current thread.
-        :return:
+        Updates the thrd attribute to the current thread.
+        :return: None
         """
         threads = self.vg.get_all_threads(expand=False)
         for t in threads:
@@ -24,16 +32,20 @@ class RogueLikeGeneral:
         self.thrd = None
 
     def get_next_reply(self):
-        if self.thrd is None:
+        """
+        Find a thread and update thrd attribute is closed or missing if missing. Updates the thread, finds the next
+        post that has a post id greater than the last_post attribute, and returns the text of that post. Saves the new
+        post id if significantly newer.
+        :return:
+        """
+        if self.thrd is None or self.thrd.closed:
             self.rlg_finder()
         else:
             self.thrd.update()
-            if self.thrd.closed:
-                self.rlg_finder()
             for post in self.thrd.all_posts:
                 if post.post_id > self.last_post:
                     self.last_post = post.post_id
-                    if self.last_post > self.last_post_saved + 1000:
+                    if self.last_post > self.last_post_saved + 3000:
                         f = open('E:\RLGTicker\lastpost.txt', 'w')
                         f.write(str(self.last_post))
                         self.last_post_saved = self.last_post

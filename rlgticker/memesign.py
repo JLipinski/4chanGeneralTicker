@@ -1,16 +1,13 @@
 import serial
 import serial.tools.list_ports
-
+from time import sleep as slp
 
 def get_port(verbose=False, auto=True):
     """
     Returns a selected com port, or automatically finds one with arduino in the port description.
-
     :param verbose: Provides full port description including number, description, and location when auto=False
     :param auto:    Automatically returns the port for the first device containing arduino in the port description
-
-    :return
-        None.
+    :return:        Com port string to attempt to connect to. Formatted as 'COM2', or 'COM3', etc.
     """
     ports = list(serial.tools.list_ports.comports())
     if auto:
@@ -38,7 +35,7 @@ class MemeSign:
         """
         Adds a string to the list of memes received.
         :param new_meme: A string containing a new dank meme.
-        :return: none
+        :return: None
         """
         self.memes.append(new_meme)
 
@@ -46,7 +43,7 @@ class MemeSign:
         """
         Returns a specified meme string or the last meme received if no index is provided.
         :param index: retrieve the meme stored at this index in self.memes
-        :return:
+        :return: last string stored in self.memes, or string at a specific index.
         """
         if not index:
             return self.memes[-1]
@@ -73,11 +70,13 @@ class MemeSign:
 
     def wait(self):
         """
-        A blocking call until a response is received from the arduino.
-        :return:
+        Used as an indicator for when the sign is ready to receive another post string, based on reading the incoming
+        serial buffer.
+        :return: True if waiting, False if ready for a new string.
         """
         if not self.ser.inWaiting() > 0:
             return True
         else:
             self.ser.flushInput()
+            slp(0.04)   # Required to prevent post strings from chaining together on the display
             return False
